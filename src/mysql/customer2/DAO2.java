@@ -1,4 +1,4 @@
-package mysql.customer;
+package mysql.customer2;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -13,17 +13,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-/**
- * DAO(Data Access Object)
- */
-public class DAO {
+import mysql.customer.Customer;
+
+
+public class DAO2 {
 	private String host;
 	private String user;
 	private String password;
 	private String database;
 	private String port;
 	
-	DAO() {
+	public DAO2() {
 		try {
 			InputStream is = new FileInputStream("/Workspace/mysql.properties");
 			Properties props = new Properties();
@@ -39,19 +39,10 @@ public class DAO {
 			e.printStackTrace();
 		}
 	}
+	
 	public Connection myGetConnection() {
 		Connection conn = null;
 		try {
-//			InputStream is = new FileInputStream("/Workspace/mysql.properties");
-//			Properties props = new Properties();
-//			props.load(is);
-//			is.close();
-//			
-//			String host = props.getProperty("host");
-//			String user = props.getProperty("user");
-//			String password = props.getProperty("password");
-//			String database = props.getProperty("database");
-//			String port = props.getProperty("port", "3306");
 			String connStr = "jdbc:mysql://" + host + ":" + port + "/" + database;
 			conn = DriverManager.getConnection(connStr, user, password);
 		} catch (Exception e) {
@@ -60,14 +51,13 @@ public class DAO {
 		return conn;
 	}
 	
-	public void deleteCustomer(String uid) {
+	public void deletePeople(String bnumber) {
 		Connection conn = myGetConnection();
-		String sql = "UPDATE customer SET isDeleted=1 WHERE uid=?;";
+		String sql = "UPDATE baseball SET isDeleted=1 WHERE bnumber=?;";
 		try {
 			PreparedStatement pStmt = conn.prepareStatement(sql);
-			pStmt.setString(1, uid);
+			pStmt.setString(1, bnumber);
 			
-			// Delete 대신에 isDeleted 필드를 1로 변경
 			pStmt.executeUpdate();
 			pStmt.close();
 			conn.close();
@@ -76,17 +66,17 @@ public class DAO {
 		}
 	}
 	
-	public void updateCustomer(Customer c) {
+	public void updatePeople(People c) {
 		Connection conn = myGetConnection();
-		String sql = "UPDATE customer SET name=?, regDate=?, isDeleted=? WHERE uid=?;";
+		String sql = "UPDATE baseball SET bname=?, bpos=?, bir=?, h=? WHERE bnumber=?;";
 		try {
 			PreparedStatement pStmt = conn.prepareStatement(sql);
-			pStmt.setString(1, c.getName());
-			pStmt.setString(2, c.getRegDate().toString());
-			pStmt.setInt(3, c.getIsDeleted());
-			pStmt.setString(4, c.getUid()); 	// ? 순서대로 번호가 매겨짐(1번부터)
+			pStmt.setString(1, c.getBname());
+			pStmt.setString(2, c.getBpos());
+			pStmt.setString(3, c.getBir().toString());
+			pStmt.setInt(4, c.getH());
+			pStmt.setInt(5, c.getBnumber());
 			
-			// Update 실행
 			pStmt.executeUpdate();
 			pStmt.close();
 			conn.close();
@@ -95,21 +85,21 @@ public class DAO {
 		}
 	}
 	
-	public Customer getCustomer(String uid) {
+	public People getPeople(int bnumber) {
 		Connection conn = myGetConnection();
-		String sql = "SELECT * FROM customer WHERE uid=?;";
-		Customer c = new Customer();
+		String sql = "SELECT * FROM people WHERE uid=?;";
+		People c = new People();
 		try {
 			PreparedStatement pStmt = conn.prepareStatement(sql);
-			pStmt.setString(1, uid);
+			pStmt.setInt(1, bnumber);
 			
 			// Select 실행
 			ResultSet rs = pStmt.executeQuery();
 			while (rs.next()) {
-				c.setUid(rs.getString(1));
-				c.setName(rs.getString(2));
-				c.setRegDate(LocalDate.parse(rs.getString(3)));
-				c.setIsDeleted(rs.getInt(4));
+				c.setBname(rs.getString(1));
+				c.setBnumber(rs.getInt(2));
+				c.setH(rs.getInt(3));
+				c.setBir(LocalDate.parse(rs.getString(4)));
 			}
 			rs.close();
 			pStmt.close();
@@ -120,21 +110,21 @@ public class DAO {
 		return c;
 	}
 	
-	public List<Customer> getCustomers() {
+	public List<People> getPeople() {
 		Connection conn = myGetConnection();
-		List<Customer> list = new ArrayList<>();
-		String sql = "SELECT * FROM customer WHERE isDeleted=0;";
+		List<People> list = new ArrayList<>();
+		String sql = "SELECT * FROM People;";
 		try {
 			Statement stmt = conn.createStatement();
 			
 			// Select 실행
 			ResultSet rs = stmt.executeQuery(sql);
 			while (rs.next()) {
-				Customer c = new Customer();
-				c.setUid(rs.getString(1));
-				c.setName(rs.getString(2));
-				c.setRegDate(LocalDate.parse(rs.getString(3)));
-				c.setIsDeleted(rs.getInt(4));
+				People c = new People();
+				c.setBname(rs.getString(1));
+				c.setBnumber(rs.getInt(2));
+				c.setH(rs.getInt(3));
+				c.setBir(LocalDate.parse(rs.getString(4)));
 				list.add(c);
 			}
 			rs.close();
@@ -146,13 +136,16 @@ public class DAO {
 		return list;
 	}
 	
-	public void insertCustomer(Customer c) {
+	public void insertPeople(People c) {
 		Connection conn = myGetConnection();
-		String sql = "INSERT INTO customer(uid, name) VALUES(?, ?);";
+		String sql = "INSERT INTO customer(bname, bnumber, bpos, bir, h) VALUES(?, ?, ?, ?, ?);";
 		try {
 			PreparedStatement pStmt = conn.prepareStatement(sql);
-			pStmt.setString(1, c.getUid());
-			pStmt.setString(2, c.getName());
+			pStmt.setString(1, c.getBname());
+			pStmt.setInt(2, c.getBnumber());
+			pStmt.setString(3, c.getBpos());
+			pStmt.setString(4, c.getBir().toString());
+			pStmt.setInt(5, c.getH());
 			
 			pStmt.executeUpdate();
 			pStmt.close();
