@@ -1,4 +1,4 @@
-package mysql.Erd;
+package mysql.bbs;
 
 import java.util.List;
 import java.util.Scanner;
@@ -11,8 +11,9 @@ public class UsersTest {
 	public static void main(String[] args) {
 		
 //		dao.registerUser(new Users("admin","admin","관리자","admin@mysql.com"));
-//		dao.registerUser(new Users("james","james","제임스","james@mysql.com"));
-
+//		dao.registerUser(new Users("james","james","제a스","jamdes@mysql.com"));
+//		dao.registerUser(new Users("maria","jaaaes","제d스","jaaes@mysql.com"));
+//		dao.registerUser(new Users("kevin","jads","제임d스","jasds@mysql.com"));
 //		Users user = dao.getUserInfo("admin");
 //		System.out.println(user);
 		

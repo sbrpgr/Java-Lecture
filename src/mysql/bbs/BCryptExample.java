@@ -1,4 +1,4 @@
-package mysql.Erd;
+package mysql.bbs;
 
 import org.mindrot.jbcrypt.BCrypt;
 /*
